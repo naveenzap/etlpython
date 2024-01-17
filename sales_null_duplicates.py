@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import select
 
 
-password_file_path = r'C:\Users\DELL.DESKTOP-0EDAUKR\Desktop\postgres_password\password.txt'
+password_file_path = r'C:\Users\DELL\Desktop\postgres_password\password.txt'
 
 with open(password_file_path, 'r') as file:
     password = file.read().strip()
@@ -71,35 +71,37 @@ for index,row in df.iterrows():
     print(dup_qry_conversion)
     dup_query_df = pd.DataFrame(dup_qry_conversion)
     #extract_dup = pd.concat(dup_query_df)
-    result_duplicates = pd.concat([result_duplicates, dup_query_df])
-    result_duplicates_final = pd.concat([result_duplicates, result_dup])
+    #Add a column for the query string
+    result_dup['query'] = dup_qry
+    #result_duplicates = pd.concat([result_duplicates, dup_query_df])
+    result_duplicates_final = pd.concat([result_duplicates_final, result_dup])
     #result_duplicates = pd.concat([result_duplicates,result_dup])
     #result_duplicates_final.to_excel('sales_duplicates_country_territory_wise.xlsx',engine='xlsxwriter')
     result_duplicates_final.to_csv('sales_duplicates_country_territory_wise.csv')
 
 #Null query
 
-    for index, row in df.iterrows():
-        dup_coun = row['country']
-        dup_terr = row['territory']
-        dup_qry = f"SELECT {''.join(column_name_null)} from sales where country = {dup_coun} and territory = {dup_terr} and country is null or territory is null"
-        result_dup = pd.read_sql(dup_qry, engine)
-        result_dataframes = []
-        result_dataframes.append(df)
-        if result_dup.empty:
-            print(f"No records found in this country and region for Null check")
-        else:
-            print(result_dup)
+for index, row in df.iterrows():
+    dup_coun = row['country']
+    dup_terr = row['territory']
+    dup_qry = f"SELECT {''.join(column_name_null)} from sales where country = {dup_coun} and territory = {dup_terr} and country is null or territory is null"
+    result_dup = pd.read_sql(dup_qry, engine)
+    result_dataframes = []
+    result_dataframes.append(df)
+    if result_dup.empty:
+        print(f"No records found in this country and region for Null check")
+    else:
+        print(result_dup)
         print(type(dup_qry))
-        dup_qry_conversion = pd.DataFrame([row.split(",") for row in dup_qry.splitlines()])
-        print(dup_qry_conversion)
-        dup_query_df = pd.DataFrame(dup_qry_conversion)
-        # extract_dup = pd.concat(dup_query_df)
-        result_duplicates = pd.concat([result_duplicates, dup_query_df])
-        result_duplicates_final = pd.concat([result_duplicates, result_dup])
-        # result_duplicates = pd.concat([result_duplicates,result_dup])
-        # result_duplicates_final.to_excel('sales_duplicates_country_territory_wise.xlsx',engine='xlsxwriter')
-        result_duplicates_final.to_csv('sales_null_country_territory_wise.csv')
+    dup_qry_conversion = pd.DataFrame([row.split(",") for row in dup_qry.splitlines()])
+    print(dup_qry_conversion)
+    dup_query_df = pd.DataFrame(dup_qry_conversion)
+    # extract_dup = pd.concat(dup_query_df)
+    result_duplicates = pd.concat([result_duplicates, dup_query_df])
+    result_duplicates_final = pd.concat([result_duplicates, result_dup])
+    # result_duplicates = pd.concat([result_duplicates,result_dup])
+    # result_duplicates_final.to_excel('sales_duplicates_country_territory_wise.xlsx',engine='xlsxwriter')
+    result_duplicates_final.to_csv('sales_null_country_territory_wise.csv')
 
     '''
     import pandas as pd
